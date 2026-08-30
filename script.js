@@ -4,12 +4,12 @@
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ============================================================
-     PARTICLE SYSTEM (floating dust + falling petals)
+     PARTICLE SYSTEM — drifting dandelion seeds
   ============================================================ */
   var canvas = document.getElementById('particles');
   var ctx = canvas.getContext('2d');
   var W, H, particles = [];
-  var colors = ['#c9a98c', '#e0d2b3', '#8a5a38', '#d8c39f'];
+  var seedColors = ['#e7dcc4', '#ddcfae', '#e2d5b8'];
 
   function resize(){
     W = canvas.width = window.innerWidth;
@@ -18,54 +18,53 @@
   window.addEventListener('resize', resize);
   resize();
 
-  function makeParticle(type, initY){
-    var isPetal = type === 'petal';
+  function makeSeed(initY){
+    var spokeCount = 8 + Math.floor(Math.random()*3);
+    var spokes = [];
+    for(var i=0;i<spokeCount;i++){
+      spokes.push((i/spokeCount)*Math.PI*2 + (Math.random()-0.5)*0.3);
+    }
     return {
-      type: type,
       x: Math.random()*W,
       y: initY !== undefined ? initY : Math.random()*H,
-      size: isPetal ? (3 + Math.random()*3.5) : (1 + Math.random()*2.4),
-      speed: isPetal ? (0.25 + Math.random()*0.35) : (0.12 + Math.random()*0.28),
-      drift: 0.4 + Math.random()*0.8,
+      size: 4.5 + Math.random()*4.5,
+      speed: 0.14 + Math.random()*0.22,
+      drift: 0.6 + Math.random()*1.3,
       phase: Math.random()*Math.PI*2,
       rot: Math.random()*360,
-      rotSpeed: (Math.random()-0.5)*0.6,
-      color: colors[Math.floor(Math.random()*colors.length)],
-      alpha: isPetal ? (0.25 + Math.random()*0.25) : (0.15 + Math.random()*0.3)
+      rotSpeed: (Math.random()-0.5)*0.35,
+      color: seedColors[Math.floor(Math.random()*seedColors.length)],
+      alpha: 0.3 + Math.random()*0.35,
+      spokes: spokes
     };
   }
 
   function initParticles(){
     particles = [];
-    var duskCount = window.innerWidth < 560 ? 22 : 34;
-    var petalCount = window.innerWidth < 560 ? 5 : 8;
-    for(var i=0;i<duskCount;i++) particles.push(makeParticle('dust'));
-    for(var j=0;j<petalCount;j++) particles.push(makeParticle('petal'));
+    var count = window.innerWidth < 560 ? 14 : 24;
+    for(var i=0;i<count;i++) particles.push(makeSeed());
   }
   initParticles();
   window.addEventListener('resize', function(){ initParticles(); });
 
-  function drawPetal(p){
+  function drawSeed(p){
     ctx.save();
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot * Math.PI/180);
     ctx.globalAlpha = p.alpha;
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 0.6;
+    for(var i=0;i<p.spokes.length;i++){
+      var a = p.spokes[i];
+      var len = p.size * (0.75 + 0.25*Math.sin(i*2.1));
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.lineTo(Math.cos(a)*len, Math.sin(a)*len);
+      ctx.stroke();
+    }
     ctx.fillStyle = p.color;
     ctx.beginPath();
-    ctx.ellipse(0, 0, p.size, p.size*0.55, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-
-  function drawDust(p){
-    ctx.save();
-    ctx.globalAlpha = p.alpha;
-    var grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size*2.2);
-    grd.addColorStop(0, p.color);
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grd;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size*2.2, 0, Math.PI*2);
+    ctx.arc(0, 0, p.size*0.16, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
   }
@@ -77,18 +76,11 @@
     for(var i=0;i<particles.length;i++){
       var p = particles[i];
       var sway = Math.sin(t*0.01 + p.phase) * p.drift;
-      if(p.type === 'dust'){
-        p.y -= p.speed;
-        p.x += sway*0.06;
-        if(p.y < -10){ Object.assign(p, makeParticle('dust', H+10)); }
-        drawDust(p);
-      } else {
-        p.y += p.speed;
-        p.x += sway*0.08;
-        p.rot += p.rotSpeed;
-        if(p.y > H+10){ Object.assign(p, makeParticle('petal', -10)); }
-        drawPetal(p);
-      }
+      p.y -= p.speed;
+      p.x += sway*0.1;
+      p.rot += p.rotSpeed;
+      if(p.y < -12){ Object.assign(p, makeSeed(H+12)); }
+      drawSeed(p);
     }
     requestAnimationFrame(tick);
   }
@@ -180,8 +172,9 @@
   /* ============================================================
      WORD-BY-WORD TEXT REVEAL
   ============================================================ */
-  function renderWords(container, text, baseDelay){
+  function renderWords(container, text, baseDelay, wordGap){
     container.innerHTML = '';
+    var gap = wordGap || 0.045;
     var lines = String(text).split('\n');
     var wordIndex = 0;
     lines.forEach(function(line, li){
@@ -190,7 +183,7 @@
         var span = document.createElement('span');
         span.textContent = w;
         span.className = 'word';
-        span.style.animationDelay = ((baseDelay||0) + wordIndex*0.045) + 's';
+        span.style.animationDelay = ((baseDelay||0) + wordIndex*gap) + 's';
         container.appendChild(span);
         container.appendChild(document.createTextNode(' '));
         wordIndex++;
@@ -245,14 +238,20 @@
   var storyProgress = document.getElementById('storyProgress');
   var storyDots = document.getElementById('storyDots');
   var nextBtn = document.getElementById('nextBtn');
+  var prevBtn = document.getElementById('prevBtn');
 
   function buildDots(){
     storyDots.innerHTML = '';
-    for(var i=0;i<paragraphs.length;i++){
+    paragraphs.forEach(function(_, i){
       var d = document.createElement('span');
       d.className = 'dot';
+      d.addEventListener('click', function(){
+        if(i === current) return;
+        current = i;
+        showParagraph(current);
+      });
       storyDots.appendChild(d);
-    }
+    });
   }
 
   function renderDots(){
@@ -260,13 +259,18 @@
     dots.forEach(function(d,i){ d.classList.toggle('on', i===current); });
   }
 
+  function updateNav(){
+    prevBtn.classList.toggle('hidden', current === 0);
+  }
+
   function showParagraph(i){
     storyCard.style.opacity = '0';
     storyCard.style.transform = 'translateY(8px) scale(0.99)';
     setTimeout(function(){
-      renderWords(storyText, paragraphs[i], 0);
+      renderWords(storyText, paragraphs[i], 0, 0.065);
       storyProgress.textContent = (i+1) + ' / ' + paragraphs.length;
       renderDots();
+      updateNav();
       storyCard.style.opacity = '1';
       storyCard.style.transform = 'translateY(0) scale(1)';
     }, 300);
@@ -291,6 +295,13 @@
     }
   });
 
+  prevBtn.addEventListener('click', function(){
+    if(current > 0){
+      current--;
+      showParagraph(current);
+    }
+  });
+
   document.getElementById('replayBtn').addEventListener('click', function(){
     opened = false;
     envelope.classList.remove('opened');
@@ -299,12 +310,15 @@
   });
 
   /* ============================================================
-     BACKSOUND (user's own mp3, with soft fade in/out)
+     BACKSOUND (user's own mp3) — tries to autoplay on load,
+     falls back to starting on first tap/click if the browser
+     blocks autoplay-with-sound. A mute/pause button is always available.
   ============================================================ */
   var musicBtn = document.getElementById('musicBtn');
   var bgAudio = document.getElementById('bgAudio');
   var TARGET_VOLUME = 0.55;
   var playing = false;
+  var userPaused = false;
   var fadeTimer = null;
 
   bgAudio.volume = 0;
@@ -329,22 +343,48 @@
     }, stepTime);
   }
 
+  function setPlayingUI(isPlaying){
+    playing = isPlaying;
+    musicBtn.classList.toggle('playing', isPlaying);
+  }
+
   function playMusic(){
     bgAudio.play().then(function(){
+      setPlayingUI(true);
       fadeTo(TARGET_VOLUME, 1200);
-    }).catch(function(err){
-      console.warn('Musik tidak bisa diputar otomatis:', err);
+    }).catch(function(){
+      /* autoplay blocked — will retry on first user interaction */
     });
   }
 
   function pauseMusic(){
     fadeTo(0, 800, function(){ bgAudio.pause(); });
+    setPlayingUI(false);
   }
 
-  musicBtn.addEventListener('click', function(){
-    playing = !playing;
-    musicBtn.classList.toggle('playing', playing);
-    if(playing){ playMusic(); } else { pauseMusic(); }
+  /* try autoplay immediately on load */
+  playMusic();
+
+  /* if blocked, start on the very first interaction anywhere on the page */
+  function tryStartOnFirstInteraction(){
+    if(!playing && !userPaused){ playMusic(); }
+    document.removeEventListener('click', tryStartOnFirstInteraction);
+    document.removeEventListener('touchstart', tryStartOnFirstInteraction);
+    document.removeEventListener('keydown', tryStartOnFirstInteraction);
+  }
+  document.addEventListener('click', tryStartOnFirstInteraction);
+  document.addEventListener('touchstart', tryStartOnFirstInteraction);
+  document.addEventListener('keydown', tryStartOnFirstInteraction);
+
+  musicBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    if(playing){
+      userPaused = true;
+      pauseMusic();
+    } else {
+      userPaused = false;
+      playMusic();
+    }
   });
 
 })();
