@@ -9,7 +9,7 @@
   var canvas = document.getElementById('particles');
   var ctx = canvas.getContext('2d');
   var W, H, particles = [];
-  var seedColors = ['#e7dcc4', '#ddcfae', '#e2d5b8'];
+  var seedColors = ['#b99879', '#a9895f', '#c2a67e', '#8a5a38'];
 
   function resize(){
     W = canvas.width = window.innerWidth;
