@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>She Seems Special</title>
+<title>Untukmu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -74,7 +74,7 @@
 
 <div class="stage">
 
-  <!-- ============ VIEW 1: COVER ============ -->
+  <!-- ============ VIEW 1: COVER / PILIH SURAT ============ -->
   <section id="view-cover" class="view active">
     <div class="topbar">
       <div class="sprig" style="width:64px;height:64px;top:-6px;left:-4px;">
@@ -113,32 +113,58 @@
 
     <div class="title-wrap">
       <div class="title-glow"></div>
-      <h1 class="title-script rise"><span>She Seems Special</span><span class="heart"></span></h1>
+      <h1 class="title-script rise"><span>Untukmu</span><span class="heart"></span></h1>
     </div>
     <div class="title-swirl rise">
       <svg viewBox="0 0 150 20"><path d="M2 10 Q 40 20 75 10 T 148 10" stroke="currentColor" stroke-width="1" fill="none"/></svg>
     </div>
 
-    <p class="subtitle rise">Sebuah cerita tentang seseorang<br>yang terlihat istimewa.</p>
+    <p class="subtitle rise">Ada dua surat yang ingin kusampaikan.<br>Pilih salah satu untuk mulai membaca.</p>
     <div class="mini-heart rise">♡</div>
 
-    <div class="envelope-zone rise">
-      <div class="envelope" id="envelope">
-        <div class="env-back"></div>
-        <div class="env-seam"><span class="line l"></span><span class="line r"></span></div>
-        <div class="env-letter-peek"></div>
-        <div class="env-flap"></div>
-        <div class="env-text">Untukmu,<br>yang istimewa<br><span style="font-size:1.1rem;">♡</span></div>
-        <div class="env-seal">
-          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4"><use href="#sprig-branch" transform="translate(20,10) scale(0.7)"/></svg>
+    <div class="envelope-zone rise" style="max-width:520px;">
+      <div class="envelope-picker">
+
+        <div class="envelope-option">
+          <div class="envelope" id="envelope1" data-story="istimewa">
+            <div class="env-back"></div>
+            <div class="env-seam"><span class="line l"></span><span class="line r"></span></div>
+            <div class="env-letter-peek"></div>
+            <div class="env-flap"></div>
+            <div class="env-text">Untukmu ♡</div>
+            <div class="env-seal">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4"><use href="#sprig-branch" transform="translate(20,10) scale(0.7)"/></svg>
+            </div>
+            <div class="sparkle" style="top:6%; left:70%; font-size:14px; animation-delay:.2s;">✦</div>
+            <div class="sparkle" style="top:12%; left:82%; font-size:10px; animation-delay:1.1s;">✦</div>
+            <div class="env-flower float-slow">
+              <svg viewBox="0 0 100 140" style="width:100%;height:100%;"><use href="#sprig-flowers"/></svg>
+            </div>
+          </div>
+          <p class="env-title-label">Dia Sangat<br>Istimewa</p>
         </div>
-        <div class="sparkle" style="top:6%; left:70%; font-size:14px; animation-delay:.2s;">✦</div>
-        <div class="sparkle" style="top:12%; left:82%; font-size:10px; animation-delay:1.1s;">✦</div>
-        <div class="env-flower float-slow">
-          <svg viewBox="0 0 100 140" style="width:100%;height:100%;"><use href="#sprig-flowers"/></svg>
+
+        <div class="envelope-option">
+          <div class="envelope" id="envelope2" data-story="rasa">
+            <div class="env-back"></div>
+            <div class="env-seam"><span class="line l"></span><span class="line r"></span></div>
+            <div class="env-letter-peek"></div>
+            <div class="env-flap"></div>
+            <div class="env-text">Untukmu ♡</div>
+            <div class="env-seal">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4"><use href="#sprig-branch" transform="translate(20,10) scale(0.7)"/></svg>
+            </div>
+            <div class="sparkle" style="top:6%; left:70%; font-size:14px; animation-delay:.5s;">✦</div>
+            <div class="sparkle" style="top:12%; left:82%; font-size:10px; animation-delay:1.4s;">✦</div>
+            <div class="env-flower float-slow delay1">
+              <svg viewBox="0 0 100 140" style="width:100%;height:100%;"><use href="#sprig-flowers"/></svg>
+            </div>
+          </div>
+          <p class="env-title-label">Sebuah Rasa yang<br>Tak Terucap</p>
         </div>
+
       </div>
-      <p class="env-hint">Klik surat untuk membukanya</p>
+      <p class="env-hint">Klik salah satu surat untuk membukanya</p>
       <div class="chevron">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </div>
@@ -162,7 +188,7 @@
   <section id="view-story" class="view">
     <div class="story-top">
       <span class="story-mark">✒</span>
-      <span class="story-progress" id="storyProgress">1 / 13</span>
+      <span class="story-progress" id="storyProgress">1 / 1</span>
     </div>
     <div class="story-center">
       <div class="story-card">
@@ -190,10 +216,10 @@
   <!-- ============ VIEW 4: CLOSING ============ -->
   <section id="view-closing" class="view">
     <div class="closing-heart rise">♡</div>
-    <h2 class="closing-title rise">She Seems<br>Special.</h2>
+    <h2 class="closing-title rise" id="closingTitle"></h2>
     <p class="closing-sub rise" id="closingSub"></p>
     <p class="closing-sign rise">- Iam</p>
-    <button class="btn-ghost rise" id="replayBtn">Baca ulang dari awal</button>
+    <button class="btn-ghost rise" id="replayBtn">Pilih surat lainnya</button>
   </section>
 
 </div>
