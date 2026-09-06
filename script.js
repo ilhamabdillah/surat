@@ -4,6 +4,51 @@
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ============================================================
+     PRELOADER — avoid a flash of unstyled fonts on first paint
+  ============================================================ */
+  (function(){
+    var pre = document.getElementById('preloader');
+    if(!pre) return;
+    var minWait = new Promise(function(res){ setTimeout(res, 450); });
+    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    Promise.all([minWait, fontsReady]).then(function(){
+      pre.classList.add('hide');
+      setTimeout(function(){ if(pre.parentNode){ pre.parentNode.removeChild(pre); } }, 700);
+    });
+  })();
+
+  /* ============================================================
+     HAPTIC FEEDBACK + SYNTHESIZED PAPER SOUND
+  ============================================================ */
+  function vibrate(pattern){
+    try{ if(navigator.vibrate){ navigator.vibrate(pattern); } }catch(e){}
+  }
+
+  var sfxCtx = null;
+  function playPaperSound(duration, volume){
+    try{
+      if(!sfxCtx){ sfxCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+      var ctxA = sfxCtx;
+      var bufferSize = Math.floor(ctxA.sampleRate * duration);
+      var buffer = ctxA.createBuffer(1, bufferSize, ctxA.sampleRate);
+      var data = buffer.getChannelData(0);
+      for(var i=0;i<bufferSize;i++){
+        data[i] = (Math.random()*2-1) * Math.pow(1 - i/bufferSize, 1.4);
+      }
+      var src = ctxA.createBufferSource();
+      src.buffer = buffer;
+      var filter = ctxA.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1800 + Math.random()*1200;
+      filter.Q.value = 0.6;
+      var gain = ctxA.createGain();
+      gain.gain.value = volume;
+      src.connect(filter); filter.connect(gain); gain.connect(ctxA.destination);
+      src.start();
+    }catch(e){ /* WebAudio unsupported — skip silently */ }
+  }
+
+  /* ============================================================
      PARTICLE SYSTEM — soft floating flower petals
   ============================================================ */
   var canvas = document.getElementById('particles');
@@ -312,6 +357,8 @@
       el.style.transform = '';
       el.classList.add('opened');
       currentStoryKey = el.dataset.story;
+      vibrate(14);
+      playPaperSound(0.38, 0.16);
       setTimeout(function(){ showView('view-intro'); }, 950);
     });
 
@@ -347,12 +394,14 @@
      STORY READER LOGIC
   ============================================================ */
   var current = 0;
+  var fastMode = false;
   var storyText = document.getElementById('storyText');
   var storyCard = document.querySelector('.story-card');
   var storyProgress = document.getElementById('storyProgress');
   var storyDots = document.getElementById('storyDots');
   var nextBtn = document.getElementById('nextBtn');
   var prevBtn = document.getElementById('prevBtn');
+  var speedBtn = document.getElementById('speedBtn');
 
   function activeParagraphs(){
     return stories[currentStoryKey].paragraphs;
@@ -386,13 +435,13 @@
     storyCard.style.opacity = '0';
     storyCard.style.transform = 'translateY(8px) scale(0.99)';
     setTimeout(function(){
-      renderWords(storyText, paragraphs[i], 0, 0.065);
+      renderWords(storyText, paragraphs[i], 0, fastMode ? 0 : 0.065);
       storyProgress.textContent = (i+1) + ' / ' + paragraphs.length;
       renderDots();
       updateNav();
       storyCard.style.opacity = '1';
       storyCard.style.transform = 'translateY(0) scale(1)';
-    }, 300);
+    }, fastMode ? 120 : 300);
   }
 
   function startStory(){
@@ -401,12 +450,15 @@
     showParagraph(current);
   }
 
-  nextBtn.addEventListener('click', function(){
+  function goNext(){
     var paragraphs = activeParagraphs();
     if(current < paragraphs.length - 1){
       current++;
+      vibrate(6);
+      playPaperSound(0.16, 0.08);
       showParagraph(current);
     } else {
+      vibrate([15,40,15]);
       showView('view-closing');
       var story = stories[currentStoryKey];
       document.getElementById('closingTitle').innerHTML = story.closingTitle;
@@ -414,14 +466,50 @@
         renderWords(document.getElementById('closingSub'), story.closingSub, 0.2);
       }, 200);
     }
-  });
+  }
 
-  prevBtn.addEventListener('click', function(){
+  function goPrev(){
     if(current > 0){
       current--;
+      vibrate(6);
+      playPaperSound(0.16, 0.08);
       showParagraph(current);
     }
-  });
+  }
+
+  nextBtn.addEventListener('click', goNext);
+  prevBtn.addEventListener('click', goPrev);
+
+  if(speedBtn){
+    speedBtn.addEventListener('click', function(){
+      fastMode = !fastMode;
+      speedBtn.classList.toggle('active', fastMode);
+      speedBtn.textContent = fastMode ? 'Baca pelan-pelan' : 'Baca cepat';
+    });
+  }
+
+  /* ---- swipe left/right on touch devices to go next/prev ---- */
+  (function(){
+    var storyCenter = document.querySelector('.story-center');
+    if(!storyCenter) return;
+    var startX = 0, startY = 0, tracking = false;
+    storyCenter.addEventListener('touchstart', function(e){
+      if(e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive:true });
+    storyCenter.addEventListener('touchend', function(e){
+      if(!tracking) return;
+      tracking = false;
+      var touch = e.changedTouches[0];
+      var dx = touch.clientX - startX;
+      var dy = touch.clientY - startY;
+      if(Math.abs(dx) > 55 && Math.abs(dy) < 60){
+        if(dx < 0){ goNext(); } else { goPrev(); }
+      }
+    }, { passive:true });
+  })();
 
   document.getElementById('replayBtn').addEventListener('click', function(){
     if(currentStoryKey && envelopeControllers[currentStoryKey]){
@@ -509,5 +597,57 @@
       playMusic();
     }
   });
+
+  /* ============================================================
+     DIM / NIGHT READING MODE TOGGLE
+  ============================================================ */
+  var dimBtn = document.getElementById('dimBtn');
+  if(dimBtn){
+    dimBtn.addEventListener('click', function(){
+      var isDim = document.body.classList.toggle('dim-mode');
+      dimBtn.classList.toggle('active', isDim);
+    });
+  }
+
+  /* ============================================================
+     CURSOR FIREFLY GLOW (desktop / fine-pointer only)
+  ============================================================ */
+  if(pointerFine && !reduceMotion){
+    var glowEl = document.getElementById('cursorGlow');
+    if(glowEl){
+      var gx = window.innerWidth/2, gy = window.innerHeight/2, tgx = gx, tgy = gy;
+      var glowVisible = false;
+      document.addEventListener('mousemove', function(e){
+        tgx = e.clientX; tgy = e.clientY;
+        if(!glowVisible){ glowEl.style.display = 'block'; glowVisible = true; }
+      });
+      (function glowLoop(){
+        gx += (tgx - gx) * 0.1;
+        gy += (tgy - gy) * 0.1;
+        glowEl.style.transform = 'translate('+gx+'px,'+gy+'px) translate(-50%,-50%)';
+        requestAnimationFrame(glowLoop);
+      })();
+    }
+  }
+
+  /* ============================================================
+     OCCASIONAL FLOATING HEART — subtle, not constant
+  ============================================================ */
+  if(!reduceMotion){
+    (function scheduleHeart(){
+      var delay = 10000 + Math.random()*9000;
+      setTimeout(function(){
+        var h = document.createElement('div');
+        h.className = 'heart-pop';
+        h.textContent = '♡';
+        var margin = 60;
+        h.style.left = (margin + Math.random()*(window.innerWidth - margin*2)) + 'px';
+        h.style.top = (window.innerHeight*0.55 + Math.random()*(window.innerHeight*0.3)) + 'px';
+        document.body.appendChild(h);
+        setTimeout(function(){ if(h.parentNode){ h.parentNode.removeChild(h); } }, 2700);
+        scheduleHeart();
+      }, delay);
+    })();
+  }
 
 })();

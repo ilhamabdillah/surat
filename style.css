@@ -533,6 +533,92 @@ html,body{
 }
 
 /* ================================================================
+   PRELOADER
+================================================================ */
+.preloader{
+  position:fixed; inset:0; z-index:9999;
+  background: var(--cream);
+  display:flex; align-items:center; justify-content:center;
+  transition: opacity .6s ease, visibility .6s ease;
+}
+.preloader.hide{ opacity:0; visibility:hidden; pointer-events:none; }
+.preloader-mark{
+  font-family: var(--script); font-size:2.4rem; color:var(--accent-deep); opacity:.55;
+  animation: preloaderPulse 1.3s ease-in-out infinite;
+}
+@keyframes preloaderPulse{
+  0%,100%{ opacity:.35; transform:scale(.92); }
+  50%{ opacity:.85; transform:scale(1); }
+}
+
+/* ================================================================
+   CURSOR FIREFLY GLOW (desktop only)
+================================================================ */
+.cursor-glow{
+  position:fixed; top:0; left:0; width:130px; height:130px;
+  border-radius:50%; pointer-events:none; z-index:7;
+  background: radial-gradient(circle, rgba(255,244,214,0.4) 0%, rgba(255,244,214,0.12) 45%, transparent 72%);
+  transform: translate(-50%,-50%);
+  display:none;
+  animation: fireflyFlicker 3.2s ease-in-out infinite;
+}
+@keyframes fireflyFlicker{
+  0%,100%{ opacity:.55; }
+  35%{ opacity:.9; }
+  60%{ opacity:.4; }
+  80%{ opacity:.8; }
+}
+
+/* ================================================================
+   DIM / NIGHT READING MODE
+================================================================ */
+html, body{ transition: filter .5s ease; }
+body.dim-mode{ filter: brightness(0.7) saturate(0.92); }
+.dim-btn{
+  width:42px; height:42px; border-radius:50%;
+  border:1px solid var(--paper-edge);
+  background: rgba(255,255,255,0.35);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--ink-soft);
+  transition: box-shadow .3s ease, transform .2s ease, background .3s ease;
+}
+.dim-btn:hover{ transform: scale(1.06); }
+.dim-btn:active{ transform: scale(0.94); }
+.dim-btn svg{ width:17px; height:17px; }
+.dim-btn .icon-moon{ display:none; }
+.dim-btn.active{ background: rgba(138,90,56,0.15); }
+.dim-btn.active .icon-sun{ display:none; }
+.dim-btn.active .icon-moon{ display:block; }
+
+/* ================================================================
+   READING SPEED TOGGLE
+================================================================ */
+.speed-btn{
+  appearance:none; border:1px solid var(--paper-edge); background:rgba(255,255,255,0.4);
+  color:var(--ink-soft); font-family:var(--serif); font-style:italic; font-size:.82rem;
+  padding:6px 14px; border-radius:999px; cursor:pointer;
+  transition: background .25s ease, color .25s ease;
+}
+.speed-btn:hover{ background: rgba(138,90,56,0.1); }
+.speed-btn.active{ background: var(--accent-deep); color:#f6ecdd; border-color:var(--accent-deep); }
+
+/* ================================================================
+   OCCASIONAL FLOATING HEART POP
+================================================================ */
+.heart-pop{
+  position:fixed; pointer-events:none; z-index:40;
+  font-size:1.3rem; color:var(--rose-dust);
+  opacity:0;
+  animation: heartPop 2.6s ease forwards;
+}
+@keyframes heartPop{
+  0%{ opacity:0; transform: scale(.5) translateY(0); }
+  18%{ opacity:.85; transform: scale(1) translateY(-8px); }
+  80%{ opacity:.55; transform: scale(1) translateY(-30px); }
+  100%{ opacity:0; transform: scale(.85) translateY(-40px); }
+}
+
+/* ================================================================
    DESKTOP EXPERIENCE — distinct from the mobile "phone letter" feel.
    Mobile stays the default above; this only enhances wider screens.
 ================================================================ */
