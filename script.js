@@ -4,12 +4,18 @@
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ============================================================
-     PARTICLE SYSTEM — drifting dandelion seeds
+     PARTICLE SYSTEM — soft floating flower petals
   ============================================================ */
   var canvas = document.getElementById('particles');
   var ctx = canvas.getContext('2d');
   var W, H, particles = [];
-  var seedColors = ['#b99879', '#a9895f', '#c2a67e', '#8a5a38'];
+  var petalColors = [
+    { fill: '#e8d4b8', stroke: '#c9a97a' },
+    { fill: '#f0e0c8', stroke: '#d4b896' },
+    { fill: '#e2c9a8', stroke: '#b8986f' },
+    { fill: '#f5e6d0', stroke: '#c7ad86' },
+    { fill: '#dcc4a0', stroke: '#a9895f' }
+  ];
 
   function resize(){
     W = canvas.width = window.innerWidth;
@@ -18,69 +24,88 @@
   window.addEventListener('resize', resize);
   resize();
 
-  function makeSeed(initY){
-    var spokeCount = 8 + Math.floor(Math.random()*3);
-    var spokes = [];
-    for(var i=0;i<spokeCount;i++){
-      spokes.push((i/spokeCount)*Math.PI*2 + (Math.random()-0.5)*0.3);
-    }
+  function makePetal(initY){
+    var type = Math.random() < 0.55 ? 'petal' : 'flower';
     return {
-      x: Math.random()*W,
-      y: initY !== undefined ? initY : Math.random()*H,
-      size: 4.5 + Math.random()*4.5,
-      speed: 0.14 + Math.random()*0.22,
-      drift: 0.6 + Math.random()*1.3,
-      phase: Math.random()*Math.PI*2,
-      rot: Math.random()*360,
-      rotSpeed: (Math.random()-0.5)*0.35,
-      color: seedColors[Math.floor(Math.random()*seedColors.length)],
-      alpha: 0.3 + Math.random()*0.35,
-      spokes: spokes
+      x: Math.random() * W,
+      y: initY !== undefined ? initY : Math.random() * H,
+      size: type === 'petal' ? (6 + Math.random() * 8) : (5 + Math.random() * 6),
+      speed: 0.18 + Math.random() * 0.28,
+      drift: 0.8 + Math.random() * 1.6,
+      phase: Math.random() * Math.PI * 2,
+      rot: Math.random() * 360,
+      rotSpeed: (Math.random() - 0.5) * 0.6,
+      color: petalColors[Math.floor(Math.random() * petalColors.length)],
+      alpha: 0.35 + Math.random() * 0.4,
+      type: type,
+      petals: 5
     };
   }
 
   function initParticles(){
     particles = [];
-    var count = window.innerWidth < 560 ? 14 : 24;
-    for(var i=0;i<count;i++) particles.push(makeSeed());
+    var count = window.innerWidth < 560 ? 18 : 32;
+    for(var i = 0; i < count; i++) particles.push(makePetal());
   }
   initParticles();
   window.addEventListener('resize', function(){ initParticles(); });
 
-  function drawSeed(p){
+  function drawPetalShape(p){
+    ctx.beginPath();
+    ctx.ellipse(0, -p.size * 0.35, p.size * 0.38, p.size * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  function drawFlower(p){
+    var r = p.size;
+    for(var i = 0; i < p.petals; i++){
+      ctx.save();
+      ctx.rotate((i / p.petals) * Math.PI * 2);
+      ctx.beginPath();
+      ctx.ellipse(0, -r * 0.55, r * 0.32, r * 0.55, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.22, 0, Math.PI * 2);
+    ctx.fillStyle = '#b98d6f';
+    ctx.globalAlpha = p.alpha * 0.9;
+    ctx.fill();
+  }
+
+  function drawParticle(p){
     ctx.save();
     ctx.translate(p.x, p.y);
-    ctx.rotate(p.rot * Math.PI/180);
+    ctx.rotate(p.rot * Math.PI / 180);
     ctx.globalAlpha = p.alpha;
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 0.6;
-    for(var i=0;i<p.spokes.length;i++){
-      var a = p.spokes[i];
-      var len = p.size * (0.75 + 0.25*Math.sin(i*2.1));
-      ctx.beginPath();
-      ctx.moveTo(0,0);
-      ctx.lineTo(Math.cos(a)*len, Math.sin(a)*len);
-      ctx.stroke();
+    ctx.fillStyle = p.color.fill;
+    ctx.strokeStyle = p.color.stroke;
+    ctx.lineWidth = 0.7;
+
+    if(p.type === 'petal'){
+      drawPetalShape(p);
+    } else {
+      drawFlower(p);
     }
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(0, 0, p.size*0.16, 0, Math.PI*2);
-    ctx.fill();
     ctx.restore();
   }
 
   var t = 0;
   function tick(){
     t += 1;
-    ctx.clearRect(0,0,W,H);
-    for(var i=0;i<particles.length;i++){
+    ctx.clearRect(0, 0, W, H);
+    for(var i = 0; i < particles.length; i++){
       var p = particles[i];
-      var sway = Math.sin(t*0.01 + p.phase) * p.drift;
+      var sway = Math.sin(t * 0.008 + p.phase) * p.drift;
       p.y -= p.speed;
-      p.x += sway*0.1;
+      p.x += sway * 0.12;
       p.rot += p.rotSpeed;
-      if(p.y < -12){ Object.assign(p, makeSeed(H+12)); }
-      drawSeed(p);
+      if(p.x < -20) p.x = W + 20;
+      if(p.x > W + 20) p.x = -20;
+      if(p.y < -20){ Object.assign(p, makePetal(H + 20)); }
+      drawParticle(p);
     }
     requestAnimationFrame(tick);
   }

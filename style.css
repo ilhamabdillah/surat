@@ -19,7 +19,7 @@
 *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 html,body{
   margin:0; padding:0; min-height:100%;
-  background: var(--cream);
+  background: #e4d7c0;
   color: var(--ink);
   font-family: var(--serif);
   overflow-x:hidden;
@@ -57,21 +57,70 @@ html,body{
 
 .stage{
   position:relative; z-index:1;
-  max-width:520px; margin:0 auto;
-  min-height:100vh;
+  max-width:520px; margin:16px auto;
+  min-height:calc(100vh - 32px);
   padding: 0 0 60px;
+  background: linear-gradient(180deg, #f7f0e4 0%, #efe4d0 100%);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 60px -18px rgba(var(--shadow-color),0.38),
+    0 0 0 1px rgba(200,180,145,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.55);
+  overflow: hidden;
 }
 
 @media (min-width:560px){
   .stage{
-    box-shadow: 0 40px 90px -30px rgba(var(--shadow-color),0.35);
-    background: linear-gradient(180deg, var(--cream) 0%, var(--cream-deep) 100%);
+    margin: 28px auto;
+    min-height: calc(100vh - 56px);
+    box-shadow:
+      0 40px 90px -28px rgba(var(--shadow-color),0.42),
+      0 0 0 1px rgba(200,180,145,0.6),
+      inset 0 1px 0 rgba(255,255,255,0.6);
   }
 }
 
 /* decorative sprig svg reused */
 .sprig{ position:absolute; color:var(--ink-faint); pointer-events:none; }
 .sprig svg{ display:block; width:100%; height:100%; }
+
+/* climbing vines on card edges */
+.vine{
+  position:absolute;
+  z-index:2;
+  pointer-events:none;
+  color:#b8a078;
+  opacity:0.72;
+  filter: drop-shadow(0 2px 4px rgba(60,45,25,0.12));
+}
+.vine svg{ display:block; width:100%; height:100%; }
+.vine-left{
+  left: -6px; top: 8%;
+  width: 52px; height: 280px;
+}
+.vine-right{
+  right: -6px; top: 12%;
+  width: 52px; height: 280px;
+  transform: scaleX(-1);
+}
+.vine-left-bottom{
+  left: -4px; bottom: 4%;
+  width: 44px; height: 200px;
+  transform: scaleY(-1);
+  opacity: 0.55;
+}
+.vine-right-bottom{
+  right: -4px; bottom: 8%;
+  width: 44px; height: 200px;
+  transform: scaleX(-1) scaleY(-1);
+  opacity: 0.5;
+}
+@media (min-width:560px){
+  .vine-left{ width:60px; height:320px; left:-8px; }
+  .vine-right{ width:60px; height:320px; right:-8px; }
+  .vine-left-bottom{ width:52px; height:240px; }
+  .vine-right-bottom{ width:52px; height:240px; }
+}
 
 .float-slow{ animation: floaty 7s ease-in-out infinite; }
 .float-slow.delay1{ animation-delay: .6s; }
@@ -104,9 +153,19 @@ html,body{
 
 .topbar{
   width:100%; display:flex; justify-content:space-between; align-items:flex-start;
-  margin-bottom: 34px;
+  margin-bottom: 12px;
 }
-.garland-top{ display:none; }
+.garland-top{
+  display:block;
+  width:100%;
+  margin: -8px 0 4px;
+  opacity: .95;
+}
+.garland-top svg{
+  width:100%;
+  height:72px;
+  display:block;
+}
 .music-btn{
   width:42px; height:42px; border-radius:50%;
   border:1px solid var(--paper-edge);
@@ -483,7 +542,7 @@ html,body{
 
 @media (min-width:900px){
   html,body{
-    background: radial-gradient(ellipse at 50% 40%, #f3ead9 0%, #ddccab 78%, #cdb98f 100%);
+    background: radial-gradient(ellipse at 50% 35%, #e8d9bc 0%, #d4c19a 55%, #c4ad82 100%);
   }
   .desk-vignette{
     display:block; position:fixed; inset:0; z-index:0; pointer-events:none;
@@ -528,16 +587,19 @@ html,body{
 
   .stage{
     max-width:600px;
-    margin:52px auto;
-    border-radius:22px;
-    box-shadow: 0 70px 130px -40px rgba(var(--shadow-color),0.5), 0 0 0 1px rgba(224,210,179,0.6);
-    overflow:hidden;
+    margin:48px auto;
+    min-height: calc(100vh - 96px);
+    border-radius:24px;
+    box-shadow:
+      0 60px 120px -36px rgba(var(--shadow-color),0.5),
+      0 0 0 1px rgba(200,180,145,0.65),
+      inset 0 1px 0 rgba(255,255,255,0.65);
   }
 
   .garland-top{
-    display:block; width:100%; margin:-4px 0 0;
+    margin: -4px 0 0;
   }
-  .garland-top svg{ width:100%; height:108px; display:block; }
+  .garland-top svg{ height:108px; }
 
   .title-script{ font-size:4.1rem; }
   .title-swirl{ width:190px; }
