@@ -9,12 +9,28 @@
   (function(){
     var pre = document.getElementById('preloader');
     if(!pre) return;
-    var minWait = new Promise(function(res){ setTimeout(res, 450); });
-    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-    Promise.all([minWait, fontsReady]).then(function(){
+
+    // Jangan menunggu document.fonts.ready tanpa batas.
+    // Saat dibuka via file:// atau Google Fonts gagal dimuat,
+    // promise tersebut bisa tidak selesai sehingga preloader stuck.
+    var hidePreloader = function(){
+      if(pre.classList.contains('hide')) return;
       pre.classList.add('hide');
-      setTimeout(function(){ if(pre.parentNode){ pre.parentNode.removeChild(pre); } }, 700);
-    });
+      setTimeout(function(){
+        if(pre.parentNode){ pre.parentNode.removeChild(pre); }
+      }, 700);
+    };
+
+    // Tetap beri waktu untuk animasi awal, tetapi selalu lanjut maksimal 1.2 detik.
+    setTimeout(hidePreloader, 1200);
+
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){
+        setTimeout(hidePreloader, 450);
+      }).catch(function(){
+        setTimeout(hidePreloader, 450);
+      });
+    }
   })();
 
   /* ============================================================
@@ -61,6 +77,12 @@
     { fill: '#f5e6d0', stroke: '#c7ad86' },
     { fill: '#dcc4a0', stroke: '#a9895f' }
   ];
+  var bubbleColors = [
+    { fill: 'rgba(180,220,245,0.45)', stroke: 'rgba(120,180,210,0.6)' },
+    { fill: 'rgba(160,210,240,0.4)', stroke: 'rgba(100,170,200,0.55)' },
+    { fill: 'rgba(200,230,250,0.5)', stroke: 'rgba(140,190,220,0.5)' },
+    { fill: 'rgba(150,200,235,0.35)', stroke: 'rgba(90,160,195,0.5)' }
+  ];
 
   function resize(){
     W = canvas.width = window.innerWidth;
@@ -69,19 +91,22 @@
   window.addEventListener('resize', resize);
   resize();
 
+  function isOcean(){ return document.body.classList.contains('theme-ocean'); }
+
   function makePetal(initY){
-    var type = Math.random() < 0.55 ? 'petal' : 'flower';
+    var ocean = isOcean();
+    var type = ocean ? 'bubble' : (Math.random() < 0.55 ? 'petal' : 'flower');
     return {
       x: Math.random() * W,
       y: initY !== undefined ? initY : Math.random() * H,
-      size: type === 'petal' ? (6 + Math.random() * 8) : (5 + Math.random() * 6),
-      speed: 0.18 + Math.random() * 0.28,
+      size: type === 'bubble' ? (4 + Math.random() * 10) : (type === 'petal' ? (6 + Math.random() * 8) : (5 + Math.random() * 6)),
+      speed: type === 'bubble' ? (0.25 + Math.random() * 0.45) : (0.18 + Math.random() * 0.28),
       drift: 0.8 + Math.random() * 1.6,
       phase: Math.random() * Math.PI * 2,
       rot: Math.random() * 360,
       rotSpeed: (Math.random() - 0.5) * 0.6,
-      color: petalColors[Math.floor(Math.random() * petalColors.length)],
-      alpha: 0.35 + Math.random() * 0.4,
+      color: ocean ? bubbleColors[Math.floor(Math.random() * bubbleColors.length)] : petalColors[Math.floor(Math.random() * petalColors.length)],
+      alpha: type === 'bubble' ? (0.25 + Math.random() * 0.35) : (0.35 + Math.random() * 0.4),
       type: type,
       petals: 5
     };
@@ -94,6 +119,10 @@
   }
   initParticles();
   window.addEventListener('resize', function(){ initParticles(); });
+
+  /* re-init particles when theme changes so bubbles appear */
+  var _themeObs = new MutationObserver(function(){ initParticles(); });
+  _themeObs.observe(document.body, { attributes:true, attributeFilter:['class'] });
 
   function drawPetalShape(p){
     ctx.beginPath();
@@ -120,6 +149,19 @@
     ctx.fill();
   }
 
+  function drawBubble(p){
+    ctx.beginPath();
+    ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    /* highlight */
+    ctx.beginPath();
+    ctx.arc(-p.size * 0.3, -p.size * 0.3, p.size * 0.28, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.globalAlpha = p.alpha * 0.8;
+    ctx.fill();
+  }
+
   function drawParticle(p){
     ctx.save();
     ctx.translate(p.x, p.y);
@@ -129,7 +171,9 @@
     ctx.strokeStyle = p.color.stroke;
     ctx.lineWidth = 0.7;
 
-    if(p.type === 'petal'){
+    if(p.type === 'bubble'){
+      drawBubble(p);
+    } else if(p.type === 'petal'){
       drawPetalShape(p);
     } else {
       drawFlower(p);
@@ -220,7 +264,7 @@
   }
 
   /* ============================================================
-     DATA: DUA SURAT
+     DATA: TIGA SURAT
   ============================================================ */
   var stories = {
     istimewa: {
@@ -265,13 +309,55 @@
         "Tapi kalau cerita ini belum pernah sampai kepadamu, mungkin aku akan tetap menyimpannya.\nEntah sampai kapan.\nMungkin sampai rasa ini hilang dengan sendirinya.",
         "Atau mungkin...\nsampai akhirnya aku benar-benar berani mengatakan:\n\"Aku suka sama kamu.\""
       ]
+    },
+    dibaca: {
+      closingTitle: "Sudah Dibaca<br>Suratnya?",
+      introText: "Gimana, sudah dibaca dua surat sebelumnya?\n\nAku nggak tahu responmu bakal gimana dan nggak bakal tahu kedepannya gimana setelah aku ngungkapin itu semua. Tapi aku berharap kita nggak bakal canggung untuk kedepannya dan tetap bisa berinteraksi seperti biasa.\n\nAku cuma mau bisa lebih dekat untuk bercerita, bercanda, dan lain-lain. Karena selama ini aku tuh bingung mau ngomongin apa denganmu. Gengsiku tuh tinggi banget, bahkan hanya untuk bertanya hal kecil.\n\nJadi setelah ini aku harap kita bisa lebih banyak ngobrol, karena sisa waktunya sedikit lagi. Aku juga bakal usahain untuk nggak canggung saat diajak cerita.\n\nKamu tahu, aku sangat senang mendengar cerita orang dan aku tuh sebenarnya asik aja kok kalau diajak main atau bercanda-canda.\n\nPliss, jangan canggung ya, Sin.\nMakasih sudah mau baca surat-suratnya.",
+      closingSub: "Makasih sudah membaca semuanya.\nSemoga setelah ini kita tetap bisa ngobrol seperti biasa,\ntanpa canggung.",
+      paragraphs: [
+        "Gimana, sudah dibaca dua surat sebelumnya?",
+        "Aku nggak tahu responmu bakal gimana dan nggak bakal tahu kedepannya gimana setelah aku ngungkapin itu semua. Tapi aku berharap kita nggak bakal canggung untuk kedepannya dan tetap bisa berinteraksi seperti biasa.",
+        "Aku cuma mau bisa lebih dekat untuk bercerita, bercanda, dan lain-lain. Karena selama ini aku tuh bingung mau ngomongin apa denganmu. Gengsiku tuh tinggi banget, bahkan hanya untuk bertanya hal kecil.",
+        "Jadi setelah ini aku harap kita bisa lebih banyak ngobrol, karena sisa waktunya sedikit lagi. Aku juga bakal usahain untuk nggak canggung saat diajak cerita.",
+        "Kamu tahu, aku sangat senang mendengar cerita orang dan aku tuh sebenarnya asik aja kok kalau diajak main atau bercanda-canda.",
+        "Pliss, jangan canggung ya, Sin.",
+        "Makasih sudah mau baca surat-suratnya."
+      ]
+    },
+    diriku: {
+      closingTitle: "Sedikit Tentang<br>Diriku.",
+      introText: "Ini bukan surat cinta.\nIni surat tentang diriku sendiri.\n\nAku jarang sekali bercerita tentang siapa aku sebenarnya.\nTapi hari ini, aku mencoba membukanya sedikit.\n\nSelamat membaca.\nSemoga kamu bisa memahami sedikit dari yang selama ini aku simpan.",
+      closingSub: "Ini baru sebagian dari ceritaku.\nMasih banyak yang belum kutulis.\n\nTerima kasih sudah mau mendengarkan,\nmeski lewat tulisan ini.",
+      paragraphs: [
+        "Untuk tentang diriku, aku bukanlah orang yang sempurna. Aku bukan orang yang bisa semuanya. Aku hanya orang yang memiliki banyak kekurangan.",
+        "Aku jarang bercerita tentang diriku, karena sedari kecil sampai sekarang aku selalu memendam semuanya sendiri.",
+        "Alasan aku memendam semuanya karena sedari kecil aku jarang didengar. Seakan omonganku saat mencurahkan hati itu tidak penting. Masalahku selalu dibilang cuman masalah kecil dan ga berarti, dan masalahku selalu dibandingkan dengan masalah mereka.",
+        "Aku dari kecil harus ngertiin perasaan mereka. Itulah kenapa aku malas cerita masalahku ke mereka—karena bakal percuma. Mereka gamau mendengarkan, selalu membandingkan dengan masalah mereka, dan aku harus selalu mengerti mereka.",
+        "Aku memiliki dua kakak, tapi mereka ga bisa jadi tempatku buat pulang. Malah aku menganggap mereka setengah asing, karena kami jarang sekali untuk mengobrol atau bercanda. Rasanya aku itu seperti anak tunggal, tapi memiliki kakak.",
+        "Aku itu selalu mengalah ke kakakku. Sampai barang-barangku itu bekas mereka semua—entah itu dari baju, celana, tas, laptop, dan lain-lain. Barang yang asli milikku itu bisa dihitung jari, sisanya barang kakakku. Tapi walaupun begitu, aku tetap bersyukur.",
+        "Masih bersambung..."
+      ]
     }
   };
 
   var currentStoryKey = null;
 
   /* ============================================================
-     ENVELOPES (dua pilihan): idle float + cursor tilt per amplop
+     THEME SWITCHER (ocean blue for "diriku")
+  ============================================================ */
+  function applyTheme(key){
+    if(key === 'diriku'){
+      document.body.classList.add('theme-ocean');
+    } else {
+      document.body.classList.remove('theme-ocean');
+    }
+  }
+  function clearTheme(){
+    document.body.classList.remove('theme-ocean');
+  }
+
+  /* ============================================================
+     ENVELOPES (tiga pilihan): idle float + cursor tilt per amplop
   ============================================================ */
   var pointerFine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
   var envelopeControllers = {};
@@ -314,7 +400,7 @@
   function setupEnvelope(el){
     var opened = false;
     var tiltX = 0, tiltY = 0, targetTiltX = 0, targetTiltY = 0;
-    var phase = el.dataset.story === 'rasa' ? 1.3 : 0;
+    var phase = el.dataset.story === 'rasa' ? 1.3 : (el.dataset.story === 'dibaca' ? 1.9 : (el.dataset.story === 'diriku' ? 2.4 : 0));
 
     if(pointerFine){
       document.addEventListener('mousemove', function(e){
@@ -357,6 +443,7 @@
       el.style.transform = '';
       el.classList.add('opened');
       currentStoryKey = el.dataset.story;
+      applyTheme(currentStoryKey);
       vibrate(14);
       playPaperSound(0.38, 0.16);
       setTimeout(function(){ showView('view-intro'); }, 950);
@@ -462,6 +549,10 @@
       showView('view-closing');
       var story = stories[currentStoryKey];
       document.getElementById('closingTitle').innerHTML = story.closingTitle;
+      var replay = document.getElementById('replayBtn');
+      if(replay){
+        replay.textContent = currentStoryKey === 'diriku' ? 'Kembali ke Tentang Diriku' : 'Pilih surat lainnya';
+      }
       setTimeout(function(){
         renderWords(document.getElementById('closingSub'), story.closingSub, 0.2);
       }, 200);
@@ -515,10 +606,59 @@
     if(currentStoryKey && envelopeControllers[currentStoryKey]){
       envelopeControllers[currentStoryKey].reset();
     }
+    var wasDiriku = currentStoryKey === 'diriku';
     currentStoryKey = null;
     lastIntroKey = null;
-    showView('view-cover');
+    if(wasDiriku){
+      applyTheme('diriku');
+      showView('view-cover-diriku');
+    } else {
+      clearTheme();
+      showView('view-cover');
+    }
   });
+
+  /* ============================================================
+     SECRET BUTTON → halaman Tentang Diriku (tema laut, terpisah)
+  ============================================================ */
+  var secretBtn = document.getElementById('secretDirikuBtn');
+  if(secretBtn){
+    secretBtn.addEventListener('click', function(){
+      vibrate(10);
+      applyTheme('diriku');
+      if(envelopeControllers.diriku){ envelopeControllers.diriku.reset(); }
+      showView('view-cover-diriku');
+    });
+  }
+
+  var backMainBtn = document.getElementById('backToMainBtn');
+  if(backMainBtn){
+    backMainBtn.addEventListener('click', function(){
+      if(envelopeControllers.diriku){ envelopeControllers.diriku.reset(); }
+      currentStoryKey = null;
+      lastIntroKey = null;
+      clearTheme();
+      showView('view-cover');
+    });
+  }
+
+  /* mirror music + dim buttons on diriku cover */
+  (function(){
+    var m2 = document.getElementById('musicBtnDiriku');
+    var d2 = document.getElementById('dimBtnDiriku');
+    if(m2){
+      m2.addEventListener('click', function(){
+        var main = document.getElementById('musicBtn');
+        if(main) main.click();
+      });
+    }
+    if(d2){
+      d2.addEventListener('click', function(){
+        var main = document.getElementById('dimBtn');
+        if(main) main.click();
+      });
+    }
+  })();
 
   /* ============================================================
      BACKSOUND (user's own mp3) — tries to autoplay on load,
@@ -557,6 +697,8 @@
   function setPlayingUI(isPlaying){
     playing = isPlaying;
     musicBtn.classList.toggle('playing', isPlaying);
+    var m2 = document.getElementById('musicBtnDiriku');
+    if(m2) m2.classList.toggle('playing', isPlaying);
   }
 
   function playMusic(){

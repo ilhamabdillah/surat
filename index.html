@@ -172,7 +172,7 @@
       <svg viewBox="0 0 150 20"><path d="M2 10 Q 40 20 75 10 T 148 10" stroke="currentColor" stroke-width="1" fill="none"/></svg>
     </div>
 
-    <p class="subtitle rise">Ada dua surat yang ingin kusampaikan.<br>Pilih salah satu untuk mulai membaca.</p>
+    <p class="subtitle rise">Ada tiga surat yang ingin kusampaikan.<br>Pilih salah satu untuk mulai membaca.</p>
     <div class="mini-heart rise">♡</div>
 
     <div class="envelope-zone rise" style="max-width:520px;">
@@ -216,11 +216,95 @@
           <p class="env-title-label">Sebuah Rasa yang<br>Tak Terucap</p>
         </div>
 
+        <div class="envelope-option">
+          <div class="envelope" id="envelope4" data-story="dibaca">
+            <div class="env-back"></div>
+            <div class="env-seam"><span class="line l"></span><span class="line r"></span></div>
+            <div class="env-letter-peek"></div>
+            <div class="env-flap"></div>
+            <div class="env-text">Untukmu ♡</div>
+            <div class="env-seal">
+              <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4"><use href="#sprig-branch" transform="translate(20,10) scale(0.7)"/></svg>
+            </div>
+            <div class="sparkle" style="top:6%; left:70%; font-size:14px; animation-delay:.8s;">✦</div>
+            <div class="sparkle" style="top:12%; left:82%; font-size:10px; animation-delay:1.7s;">✦</div>
+            <div class="env-flower float-slow delay2">
+              <svg viewBox="0 0 100 140" style="width:100%;height:100%;"><use href="#sprig-flowers"/></svg>
+            </div>
+          </div>
+          <p class="env-title-label">Sudah Dibaca<br>Suratnya?</p>
+        </div>
+
       </div>
       <p class="env-hint">Klik salah satu surat untuk membukanya</p>
       <div class="chevron">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
       </div>
+    </div>
+
+    <!-- tombol rahasia ke halaman Tentang Diriku -->
+    <button type="button" class="secret-btn rise" id="secretDirikuBtn" aria-label="Rahasia">
+      <span class="secret-dot"></span>
+    </button>
+  </section>
+
+  <!-- ============ VIEW: COVER DIRIKU (tema laut, terpisah) ============ -->
+  <section id="view-cover-diriku" class="view">
+    <div class="topbar">
+      <button class="back-main-btn" id="backToMainBtn" aria-label="Kembali ke surat Untukmu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      </button>
+      <button class="music-btn" id="musicBtnDiriku" aria-label="Putar musik lembut">
+        <svg class="icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg class="icon-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
+      </button>
+      <button class="dim-btn" id="dimBtnDiriku" aria-label="Mode baca redup">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+      </button>
+    </div>
+
+    <div class="ocean-waves" aria-hidden="true"></div>
+
+    <div class="title-wrap">
+      <div class="title-glow ocean-glow"></div>
+      <h1 class="title-script rise ocean-title"><span>Tentang Diriku</span></h1>
+    </div>
+    <div class="title-swirl rise ocean-swirl">
+      <svg viewBox="0 0 150 20"><path d="M2 10 Q 40 20 75 10 T 148 10" stroke="currentColor" stroke-width="1" fill="none"/></svg>
+    </div>
+
+    <p class="subtitle rise ocean-sub">Sebuah surat yang jarang kubuka.<br>Ini tentang aku, yang selama ini kupendam.</p>
+    <div class="mini-heart rise ocean-heart">≋</div>
+
+    <div class="envelope-zone rise" style="max-width:300px;">
+      <div class="envelope-picker" style="justify-content:center;">
+        <div class="envelope-option">
+          <div class="envelope envelope-ocean" id="envelope3" data-story="diriku">
+            <div class="env-back"></div>
+            <div class="env-seam"><span class="line l"></span><span class="line r"></span></div>
+            <div class="env-letter-peek"></div>
+            <div class="env-flap"></div>
+            <div class="env-text">Sedikit Tentang Diriku</div>
+            <div class="env-seal env-seal-ocean">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12c2.5-3 5.5-4.5 9-4.5s6.5 1.5 9 4.5"/>
+                <path d="M4 16c2-2.2 4.5-3.3 7-3.3s5 1.1 7 3.3"/>
+                <path d="M6 19.5c1.4-1.4 3.1-2.1 5-2.1s3.6.7 5 2.1"/>
+              </svg>
+            </div>
+            <div class="sparkle" style="top:6%; left:70%; font-size:14px; animation-delay:.3s;">✦</div>
+            <div class="sparkle" style="top:12%; left:82%; font-size:10px; animation-delay:1.2s;">✦</div>
+            <div class="env-flower float-slow delay2">
+              <svg viewBox="0 0 24 24" style="width:70%;height:70%;color:#7eb8d4;" fill="none" stroke="currentColor" stroke-width="1.4">
+                <circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7" opacity=".55"/><circle cx="12" cy="12" r="11" opacity=".3"/>
+              </svg>
+            </div>
+          </div>
+          <p class="env-title-label">Buka surat ini</p>
+        </div>
+      </div>
+      <p class="env-hint">Klik surat untuk membukanya</p>
     </div>
   </section>
 
