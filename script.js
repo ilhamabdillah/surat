@@ -312,7 +312,7 @@
     },
     dibaca: {
       closingTitle: "Sudah Dibaca<br>Suratnya?",
-      introText: "Gimana, sudah dibaca dua surat sebelumnya?\n\nAku nggak tahu responmu bakal gimana dan nggak bakal tahu kedepannya gimana setelah aku ngungkapin itu semua. Tapi aku berharap kita nggak bakal canggung untuk kedepannya dan tetap bisa berinteraksi seperti biasa.\n\nAku cuma mau bisa lebih dekat untuk bercerita, bercanda, dan lain-lain. Karena selama ini aku tuh bingung mau ngomongin apa denganmu. Gengsiku tuh tinggi banget, bahkan hanya untuk bertanya hal kecil.\n\nJadi setelah ini aku harap kita bisa lebih banyak ngobrol, karena sisa waktunya sedikit lagi. Aku juga bakal usahain untuk nggak canggung saat diajak cerita.\n\nKamu tahu, aku sangat senang mendengar cerita orang dan aku tuh sebenarnya asik aja kok kalau diajak main atau bercanda-canda.\n\nPliss, jangan canggung ya, Sin.\nMakasih sudah mau baca surat-suratnya.",
+      introText: "Bagaimana, apakah semuanya sudah kamu baca?\n\nSurat terakhir ini sebenarnya cuma berisi keinginanku aja.\n\nTerima kasih sudah membaca suratku sampai selesai.",
       closingSub: "Makasih sudah membaca semuanya.\nSemoga setelah ini kita tetap bisa ngobrol seperti biasa,\ntanpa canggung.",
       paragraphs: [
         "Gimana, sudah dibaca dua surat sebelumnya?",
